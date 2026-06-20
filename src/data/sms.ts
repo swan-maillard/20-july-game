@@ -18,6 +18,8 @@ export const SMS = {
   decoyReply: 'You didn’t think it would be that easy?',
   /** Reply for any other wrong code. */
   wrongReply: 'That code doesn’t match this order. Please try again.',
+  /** Reply when the correct code is finally entered (final / send-code mode). */
+  successReply: 'Order confirmed — your parcel is ready for pickup. See you soon!',
   /** Failed attempts before Marie gives up and starts talking. */
   failsBeforeGiveUp: 2,
 }

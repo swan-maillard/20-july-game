@@ -37,4 +37,13 @@ export const CHARACTERS: Record<string, Character> = {
       happy: '',
     },
   },
+  dog: {
+    name: 'Dog',
+    side: 'right',
+    accent: '#8f2f9a',
+    portraits: {
+      neutral: '',
+      happy: '',
+    },
+  },
 }

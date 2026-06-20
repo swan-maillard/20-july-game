@@ -61,13 +61,24 @@
   40% { opacity: 1; }
 }
 
-/* Cross-fade between scenes (Vue <Transition name="scene" mode="out-in">). */
+/* Cross-fade between scenes (Vue <Transition name="scene">). */
 .scene-enter-active,
 .scene-leave-active {
   transition: opacity 240ms ease;
 }
 .scene-enter-from,
 .scene-leave-to {
+  opacity: 0;
+}
+
+/* Fade the centred per-line prop image when it changes (Transition name="prop").
+   Only opacity animates so the Tailwind centring transform is left intact. */
+.prop-enter-active,
+.prop-leave-active {
+  transition: opacity 260ms ease;
+}
+.prop-enter-from,
+.prop-leave-to {
   opacity: 0;
 }
 
@@ -90,7 +101,9 @@ body,
     animation: none !important;
   }
   .scene-enter-active,
-  .scene-leave-active {
+  .scene-leave-active,
+  .prop-enter-active,
+  .prop-leave-active {
     transition: none !important;
   }
 }

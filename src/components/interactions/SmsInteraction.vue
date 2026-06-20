@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { nextTick, onMounted, ref } from 'vue'
 import { SMS } from '../../data'
+import InteractionShell from './InteractionShell.vue';
 
 /* The opening SMS conversation, modelled as an interaction. The post office
  * asks the player to confirm an order code; every guess is rejected (with a
  * special line for the obvious one). After `failsBeforeGiveUp` attempts the
  * scene emits `done` and Marie takes over in the next scene. */
-const emit = defineEmits<{ done: [] }>()
+const props = defineProps<{
+  /** Final mode: the correct code. When set, a matching guess confirms the order. */
+  answer?: string
+  /** Scene to jump to on success (correct code). */
+  onSuccess?: string
+  /** Scene to jump to after the allowed failures (e.g. back to the riddle). */
+  onFail?: string
+}>()
+const emit = defineEmits<{ done: [target?: string]; skip: [target?: string] }>()
 
 interface Msg {
   from: 'them' | 'me'
@@ -70,6 +79,15 @@ async function submit() {
   await scrollToBottom()
   await sleep(300)
 
+  // Final mode: a correct code confirms the order and jumps to onSuccess.
+  if (props.answer && guess === props.answer) {
+    await receive(SMS.successReply)
+    finished.value = true
+    await sleep(1300)
+    emit('done', props.onSuccess)
+    return
+  }
+
   const reply = guess === SMS.decoyCode ? SMS.decoyReply : SMS.wrongReply
   await receive(reply)
 
@@ -79,15 +97,22 @@ async function submit() {
   if (fails.value >= SMS.failsBeforeGiveUp) {
     finished.value = true
     await sleep(1300)
-    emit('done')
+    // Final mode -> onFail (e.g. back to the riddle); opening mode -> linear.
+    emit('done', props.onFail)
   } else {
     focusInput()
   }
 }
+
+// Dev skip override: jump to the success outcome (final mode), else linear.
+function skip() {
+  emit('skip', props.onSuccess)
+}
+defineExpose({ skip })
 </script>
 
 <template>
-  <div class="absolute inset-0 z-10 flex flex-col bg-canvas">
+  <InteractionShell>
     <!-- header -->
     <header class="flex flex-col items-center border-b border-paper-edge px-4 py-3">
       <span class="font-mono text-[10px] uppercase tracking-[3px] text-ink-soft">SMS</span>
@@ -167,5 +192,5 @@ async function submit() {
         </button>
       </div>
     </footer>
-  </div>
+  </InteractionShell>
 </template>

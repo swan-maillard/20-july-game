@@ -42,12 +42,27 @@ const side = computed(() => character.value?.side ?? 'left')
 const mood = computed(() => (line.value?.kind === 'say' ? line.value.mood ?? 'neutral' : 'neutral'))
 const portrait = computed(() => character.value?.portraits?.[mood.value] ?? '')
 const talking = computed(() => !done.value && !props.reduced)
+
+// Optional prop image centred on the stage for this line.
+const image = computed(() => line.value?.image ?? '')
 </script>
 
 <template>
-  <div class="absolute inset-0">
+  <!-- Tap anywhere on the scene to finish the typing, then to advance. -->
+  <div class="grow" @click="handleClick">
+    <!-- centred prop image; fades when the line's image changes -->
+    <Transition name="prop">
+      <img
+        v-if="image"
+        :key="image"
+        :src="image"
+        alt=""
+        class="pointer-events-none absolute left-1/2 top-[40%] max-h-[50vh] w-auto max-w-[66%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,.18)]"
+      />
+    </Transition>
+
     <template v-if="line">
-      <NoteCard v-if="line.kind === 'note'" :text="out" :done="done" @click="handleClick" />
+      <NoteCard v-if="line.kind === 'note'" :text="out" :done="done" />
       <template v-else>
         <!-- The portrait stays mounted as the line cursor moves, so only its
              reactive `src` changes — the preloaded image swaps with no flash. -->
@@ -58,7 +73,6 @@ const talking = computed(() => !done.value && !props.reduced)
           :side="side"
           :text="out"
           :done="done"
-          @click="handleClick"
         />
       </template>
     </template>

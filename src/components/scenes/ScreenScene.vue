@@ -6,7 +6,7 @@ const emit = defineEmits<{ done: [] }>()
 </script>
 
 <template>
-  <div class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-6 px-8 text-center">
+  <div class="grow flex flex-col items-center justify-center gap-6 px-8 text-center">
 
     <div class="flex flex-col items-center gap-2">
       <span v-if="scene.kicker" class="font-sans text-[12px] tracking-[5px] text-ink-soft">

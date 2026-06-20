@@ -47,6 +47,27 @@ special-cased screens — the title and the ending are just `screen` scenes.
   body: 'A parcel has arrived.', action: 'Begin' }   // omit action => terminal
 ```
 
+### Jumps & branching
+
+By default a finished scene advances to the next one in order. To branch, give a
+scene an `id` and send the story there:
+
+- **Static:** a scene's `goto: '<id>'` redirects when it finishes (e.g. a
+  "try again" dialog whose `goto` loops back to the puzzle).
+- **Dynamic:** an interaction can emit `done` with a target id, chosen at
+  runtime (e.g. the coffee brew jumps to `onSuccess` or `onFail`).
+
+An explicit target wins over `goto`, which wins over linear order. The dev
+`skip` button always steps linearly so you can walk every scene. Example — the
+coffee retry loop:
+
+```ts
+{ type: 'interactive', key: 'coffee', id: 'brew',
+  props: { onSuccess: 'coffee-good', onFail: 'coffee-bad' } },
+{ type: 'dialog', id: 'coffee-bad', goto: 'brew', lines: [ /* "redo it" */ ] },
+{ type: 'dialog', id: 'coffee-good', lines: [ /* success */ ] },
+```
+
 ## Project layout
 
 ```
@@ -94,6 +115,15 @@ instantly with no flash when the mood changes.
 An interaction is any component that emits `done` when the player completes it
 (scene `props` are forwarded to it). Register it under a key in
 [src/components/interactions/index.ts](src/components/interactions/index.ts) and
-point a scene at that key. `InteractionShell` gives you the standard card +
-title + the dev "skip" button (toggle `DEV_SKIP` in
-[src/data/settings.ts](src/data/settings.ts) before shipping).
+point a scene at that key.
+
+### Dev helpers
+
+While `DEV_SKIP` is `true` ([src/data/settings.ts](src/data/settings.ts)):
+
+- a **`skip ›`** button sits on every scene (top-right) and jumps to the next
+  one — handled by the engine, so it works for any scene type;
+- tapping a **dialog** scene fast-forwards the typewriter to the full line, then
+  advances on the next tap (this tap-to-finish works in all modes).
+
+Set `DEV_SKIP = false` to remove the skip button before shipping.

@@ -28,28 +28,44 @@ export interface SayLine {
   who: string
   mood?: Mood
   text: string
+  /** Optional prop image shown centred on the stage while this line plays. */
+  image?: string
 }
 
 /** A narrator / message card (no character). */
 export interface NoteLine {
   kind: 'note'
   text: string
+  /** Optional prop image shown centred on the stage while this line plays. */
+  image?: string
 }
 
 export type Line = SayLine | NoteLine
 
 /* --- Scene types ---------------------------------------------------------- */
 
+/** Shared by every scene: optional id (so others can jump here) and an optional
+ *  `goto` that redirects the story when the scene finishes (instead of the next
+ *  scene in order). A scene can also be jumped to dynamically — an interaction
+ *  may emit `done` with a target id (see CoffeeInteraction). */
+interface SceneBase {
+  /** Stable id so other scenes / interactions can jump to this one. */
+  id?: string
+  /** When this scene finishes with no explicit target, jump to this scene id
+   *  instead of advancing to the next scene. */
+  goto?: string
+}
+
 /** A run of speech bubbles / notes. Tap to advance; done after the last line. */
-export interface DialogScene {
+export interface DialogScene extends SceneBase {
   type: 'dialog'
   lines: Line[]
 }
 
 /** A pluggable interactive bit (the SMS, a mini-game, a puzzle). The matching
  *  component is looked up by `key` in the INTERACTIONS registry and emits
- *  `done` when the player completes it. */
-export interface InteractiveScene {
+ *  `done` when the player completes it (optionally with a target id to jump to). */
+export interface InteractiveScene extends SceneBase {
   type: 'interactive'
   key: string
   /** Optional props forwarded to the interactive component. */
@@ -57,7 +73,7 @@ export interface InteractiveScene {
 }
 
 /** A centred, full-bleed message: title, ending, or an interstitial. */
-export interface ScreenScene {
+export interface ScreenScene extends SceneBase {
   type: 'screen'
   /** Visual flavour. 'title' adds the hinomaru mark. */
   variant?: 'title' | 'end' | 'plain'

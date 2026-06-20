@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 560" fill="none" font-family="Georgia, 'Times New Roman', serif">
+  <!-- phone body -->
+  <rect x="6" y="6" width="268" height="548" rx="42" fill="#211f1c"/>
+  <rect x="16" y="16" width="248" height="528" rx="34" fill="#f5f2ec"/>
+
+  <!-- speaker -->
+  <rect x="118" y="34" width="44" height="6" rx="3" fill="#211f1c" opacity="0.18"/>
+
+  <!-- header -->
+  <text x="140" y="74" text-anchor="middle" font-size="11" letter-spacing="3"
+        fill="#79736a" font-family="'Courier New', monospace">SMS</text>
+  <text x="140" y="96" text-anchor="middle" font-size="22" font-weight="700" fill="#211f1c">Posten</text>
+  <line x1="34" y1="112" x2="246" y2="112" stroke="#e7e1d5" stroke-width="1.5"/>
+
+  <!-- received bubble 1 -->
+  <rect x="34" y="136" width="196" height="92" rx="18" fill="#fbf8f2" stroke="#e7e1d5" stroke-width="1.5"/>
+  <g font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#211f1c">
+    <text x="50" y="164">Hei! A parcel addressed to</text>
+    <text x="50" y="184">you has arrived at the</text>
+    <text x="50" y="204">post office.</text>
+  </g>
+
+  <!-- received bubble 2 -->
+  <rect x="34" y="244" width="184" height="72" rx="18" fill="#fbf8f2" stroke="#e7e1d5" stroke-width="1.5"/>
+  <g font-family="Helvetica, Arial, sans-serif" font-size="13" fill="#211f1c">
+    <text x="50" y="272">Confirm your 4-digit</text>
+    <text x="50" y="292">order code to collect it.</text>
+  </g>
+
+  <!-- sent bubble -->
+  <rect x="120" y="332" width="110" height="44" rx="18" fill="#d2552f"/>
+  <text x="175" y="360" text-anchor="middle" font-family="'Courier New', monospace"
+        font-size="18" letter-spacing="3" fill="#ffffff">????</text>
+
+  <!-- home indicator -->
+  <rect x="104" y="520" width="72" height="6" rx="3" fill="#211f1c" opacity="0.2"/>
+</svg>

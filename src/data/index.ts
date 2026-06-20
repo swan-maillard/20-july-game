@@ -5,4 +5,5 @@
 export * from './characters'
 export * from './story'
 export * from './sms'
+export * from './coffee'
 export * from './settings'
