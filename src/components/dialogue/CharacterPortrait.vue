@@ -18,11 +18,15 @@ defineProps<{
       talking ? 'animate-talkshake' : 'animate-breathe',
     ]"
   >
+    <!-- src is preloaded at startup and decoded synchronously, so swapping
+         moods on this persistent <img> is paint-ready (no flash, no delay). -->
     <img
       v-if="src"
       :src="src"
       :alt="mood"
-      class="max-h-full max-w-full object-contain drop-shadow-[0_8px_14px_rgba(0,0,0,.35)]"
+      decoding="sync"
+      draggable="false"
+      class="max-h-full max-w-full object-contain drop-shadow-[0_0_2px_rgba(0,0,0,.2)]"
     />
     <div
       v-else

@@ -1,101 +1,80 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { STORY } from './story'
-import { GAMES } from './games'
+import { computed, ref, type Component } from 'vue'
+import { STORY, CHARACTERS } from './data'
+import { INTERACTIONS } from './components/interactions'
 import { useReducedMotion } from './composables/useReducedMotion'
-import Dialogue from './components/Dialogue.vue'
-import TitleScreen from './components/TitleScreen.vue'
-import EndScreen from './components/EndScreen.vue'
-import PlaceholderGame from './components/PlaceholderGame.vue'
-
-type Screen = 'title' | 'play' | 'end'
-type Phase = 'intro' | 'game' | 'outro'
+import { usePreloadImages } from './composables/usePreloadImages'
+import DialogScene from './components/scenes/DialogScene.vue'
+import ScreenScene from './components/scenes/ScreenScene.vue'
+import PlaceholderInteraction from './components/interactions/PlaceholderInteraction.vue'
 
 const reduced = useReducedMotion()
 
-const screen = ref<Screen>('title')
-const ch = ref(0)
-const phase = ref<Phase>('intro')
-const line = ref(0)
+// Warm the cache for every character portrait at startup so bubbles show
+// their image instantly later on.
+const portraitUrls = Object.values(CHARACTERS)
+  .flatMap((c) => Object.values(c.portraits ?? {}))
+  .filter((url): url is string => Boolean(url))
+usePreloadImages(portraitUrls)
 
-const chapter = computed(() => STORY[ch.value])
-const currentLine = computed(() => {
-  const lines = phase.value === 'intro' ? chapter.value.intro : chapter.value.outro
-  return lines[line.value]
+// The engine: a cursor over chapters -> scenes. Scenes advance on `done`.
+const chapterIndex = ref(0)
+const sceneIndex = ref(0)
+
+const chapter = computed(() => STORY[chapterIndex.value])
+const scene = computed(() => chapter.value.scenes[sceneIndex.value])
+const positionKey = computed(() => `${chapterIndex.value}-${sceneIndex.value}`)
+
+// Chapter label is for in-world scenes, not the framing screens.
+const showChapterTitle = computed(() => Boolean(chapter.value.title) && scene.value.type !== 'screen')
+
+// Resolve the current scene to a component + its props.
+const sceneComponent = computed<Component>(() => {
+  const s = scene.value
+  if (s.type === 'dialog') return DialogScene
+  if (s.type === 'screen') return ScreenScene
+  return INTERACTIONS[s.key] ?? PlaceholderInteraction
 })
-const gameComp = computed(() => GAMES[chapter.value.gameKey] ?? PlaceholderGame)
 
-// Enter a chapter, skipping straight to its game if it has no intro lines.
-function enterChapter(index: number) {
-  ch.value = index
-  phase.value = 'intro'
-  line.value = 0
-  if (chapter.value.intro.length === 0) phase.value = 'game'
-}
+const sceneProps = computed<Record<string, unknown>>(() => {
+  const s = scene.value
+  if (s.type === 'dialog') return { lines: s.lines, reduced: reduced.value }
+  if (s.type === 'screen') return { scene: s }
+  return s.props ?? {}
+})
 
-function start() {
-  screen.value = 'play'
-  enterChapter(0)
-}
-
-function nextChapter() {
-  if (ch.value + 1 >= STORY.length) screen.value = 'end'
-  else enterChapter(ch.value + 1)
-}
-
+// Move to the next scene, then the next chapter; stop at the very end.
 function advance() {
-  if (phase.value === 'intro') {
-    if (line.value + 1 < chapter.value.intro.length) line.value++
-    else {
-      phase.value = 'game'
-      line.value = 0
-    }
-  } else if (phase.value === 'outro') {
-    if (line.value + 1 < chapter.value.outro.length) line.value++
-    else nextChapter()
+  if (sceneIndex.value + 1 < chapter.value.scenes.length) {
+    sceneIndex.value += 1
+  } else if (chapterIndex.value + 1 < STORY.length) {
+    chapterIndex.value += 1
+    sceneIndex.value = 0
   }
-}
-
-function solveGame() {
-  if (chapter.value.outro.length === 0) {
-    nextChapter()
-    return
-  }
-  phase.value = 'outro'
-  line.value = 0
+  // else: terminal scene — nothing follows.
 }
 </script>
 
 <template>
-  <div class="flex h-[100dvh] w-full justify-center bg-neutral-100 font-sans">
-    <!-- the white canvas — your stage -->
-    <div class="relative h-full w-full max-w-[480px] select-none overflow-hidden bg-white">
-      <TitleScreen v-if="screen === 'title'" @start="start" />
-      <EndScreen v-else-if="screen === 'end'" />
+  <div class="flex h-[100dvh] w-full justify-center bg-[#e8e4db] font-sans text-ink">
+    <!-- the stage: a phone-width washi canvas -->
+    <div class="relative h-full w-full max-w-[480px] select-none overflow-hidden bg-canvas">
+      <!-- minimal chapter label -->
+      <div v-if="showChapterTitle" class="absolute inset-x-0 top-0 z-20 pt-3 text-center">
+        <span class="font-serif text-[13px] font-semibold tracking-wide text-ink-soft">
+          {{ chapter.title }}
+        </span>
+      </div>
 
-      <template v-else>
-        <!-- minimal chapter label -->
-        <div class="absolute inset-x-0 top-0 z-10 pt-3 text-center">
-          <span class="font-serif text-[13px] font-semibold tracking-wide text-ink/50">
-            {{ chapter.title }}
-          </span>
-        </div>
-
-        <Dialogue
-          v-if="phase !== 'game' && currentLine"
-          :key="`${phase}-${line}`"
-          :line="currentLine"
-          :reduced="reduced"
-          @advance="advance"
-        />
-
+      <!-- one scene at a time, cross-faded -->
+      <Transition name="scene" mode="out-in">
         <component
-          :is="gameComp"
-          v-else-if="phase === 'game'"
-          :title="chapter.title"
-          @solve="solveGame"
+          :is="sceneComponent"
+          :key="positionKey"
+          v-bind="sceneProps"
+          @done="advance"
         />
-      </template>
+      </Transition>
     </div>
   </div>
 </template>

@@ -17,7 +17,7 @@ defineEmits<{ click: [] }>()
 <template>
   <div class="absolute inset-x-0 bottom-0 z-10 px-3 pb-4">
     <div
-      class="relative min-h-[96px] cursor-pointer animate-rise rounded-[18px] border border-paper-edge bg-paper px-4 pb-3.5 pt-4 text-ink shadow-[0_10px_30px_rgba(0,0,0,.3)]"
+      class="relative min-h-[96px] cursor-pointer animate-rise rounded-[18px] border border-paper-edge bg-paper px-4 pb-3.5 pt-4 text-ink shadow-[0_0_5px_rgba(0,0,0,.08)]"
       :class="side === 'right' ? 'mr-[118px]' : 'ml-[118px]'"
       @click="$emit('click')"
     >
@@ -33,7 +33,7 @@ defineEmits<{ click: [] }>()
 
       <!-- name tab -->
       <div
-        class="absolute -top-3 rounded-full px-3 py-0.5 font-serif text-[13px] font-semibold text-white shadow-[0_3px_8px_rgba(0,0,0,.25)]"
+        class="absolute -top-3 rounded-full px-3 py-0.5 font-serif text-[13px] font-semibold text-white shadow-[0_0px_5px_rgba(0,0,0,.25)]"
         :class="side === 'right' ? 'right-3.5' : 'left-3.5'"
         :style="{ background: accent }"
       >
