@@ -148,17 +148,31 @@ export const STORY: Chapter[] = [
           { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have done the Brattkorturs, it should be easy!' },
         ],
       },
-      // Boulder game (placeholder for now): show 3 coloured routes, 10s to memorise
-      // them, they grey out, then climb one — following your colour from the bottom.
+      // Boulder game: memorise 3 coloured routes, they grey out, then climb the
+      // given colour from the bottom. Two slips = a fall. Layout is random.
       {
         type: 'interactive',
-        key: 'placeholder',
-        props: { title: 'Memorise the three coloured routes (10s). They grey out — then climb one, following your colour from the bottom.' },
+        key: 'boulder',
+        id: 'boulder-climb',
+        props: { title: 'Climb the boulder', onSuccess: 'boulder-good', onFail: 'boulder-bad' },
       },
+      // Fell: complain, then `goto` loops back to a fresh climb.
       {
         type: 'dialog',
+        id: 'boulder-bad',
+        goto: 'boulder-climb',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'proud', text: 'Sent it. First try. …Mostly.' },
+          { kind: 'say', who: 'marie', mood: 'surprised', text: ' Aaah I slipped!! I need to read the route and not go by instinct only!' },
+          { kind: 'say', who: 'marie', mood: 'neutral', text: 'I\'ll try again.' },
+        ],
+      },
+      // Sent it: last scene of the chapter, flows on to the next.
+      {
+        type: 'dialog',
+        id: 'boulder-good',
+        lines: [
+          { kind: 'say', who: 'marie', mood: 'proud', text: 'Made it!! First try. ...Mostly.' },
+          { kind: 'say', who: 'swan', mood: 'happy', text: 'I can see the cabin!!' },
         ],
       },
     ],
@@ -167,43 +181,54 @@ export const STORY: Chapter[] = [
   // ── The cabin: the riddle + sending the code ─────────────────────────────
   {
     id: 'cabin',
-    title: 'ついに',
+    title: '気づき',
     scenes: [
       {
         type: 'screen',
-        kicker: 'ついに',
+        kicker: '気づき',
         title: 'Chapter 4',
-        body: 'Finally',
+        body: 'The realisation',
         action: 'Let\'s go',
       },
       {
         
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'There it is. The cabin. We actually made it.' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'The post-it is in here somewhere… but where did I hide it?' },
-          { kind: 'say', who: 'marie', mood: 'surprised', text: 'A riddle. To myself. Past-me was feeling clever.' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'We finally made it!' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'The post-it is in here somewhere... But where did I put left it?' },
+          { kind: 'say', who: 'swan', mood: 'thinking', text: 'Look we also forgot this post-it last time when doing our Disney karaoke.' },
+          { kind: 'say', who: 'swan', mood: 'sad', text: 'But I don\'t find the post-it for the code...' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Show me this post-it, maybe I\ll suddently remember.' },
         ],
       },
-      // Riddle (placeholder): solving it = finding the REAL post-it hidden in the
-      // cabin you're standing in. "Send the code" then opens the SMS again.
+      // The riddle note. "Found the post-it" opens the SMS again.
       {
         type: 'interactive',
-        key: 'placeholder',
+        key: 'riddle',
         id: 'riddle',
-        goto: 'send-code',
-        props: {
-          title: 'Where did past-you hide it? Solve the riddle — the post-it is tucked away in the very cabin you are standing in. Find it, then send the code.',
-          button: 'Send the code',
-        },
       },
-      // Re-open the SMS in "final" mode. Correct code -> success -> epilogue.
-      // Out of tries -> back to the riddle to look again.
+      {
+        type: 'dialog',
+        lines: [
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'Yay I remembered where was the post-it!' },
+          { kind: 'say', who: 'marie', mood: 'neutral', text: 'I can now see if the code is correct.' },
+        ],
+      },
+      // Re-open the SMS in "final" mode (direct messages, correct code known).
+      // Correct -> success -> epilogue; two fails -> back to the riddle.
       {
         type: 'interactive',
         key: 'sms',
         id: 'send-code',
-        props: { answer: '0720', onSuccess: 'end', onFail: 'riddle' }, // TODO: set the real code
+        props: { onSuccess: 'end', onFail: 'failed-code' },
+      },
+      {
+        type: 'dialog',
+        id: 'failed-code',
+        lines: [
+          { kind: 'say', who: 'marie', mood: 'sad', text: 'It might be that I haven\'t found the correct post-it actually... Let\'s think again.' },
+        ],
+        goto: 'riddle'
       },
     ],
   },

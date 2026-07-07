@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, type Component } from 'vue'
-import { STORY, CHARACTERS, DEV_SKIP } from './data'
+import { STORY, CHARACTERS } from './data'
 import { INTERACTIONS } from './components/interactions'
 import { useReducedMotion } from './composables/useReducedMotion'
 import { usePreloadImages } from './composables/usePreloadImages'
@@ -34,14 +34,15 @@ const sceneRef = ref<{ skip?: () => void } | null>(null)
 // Chapter label is for in-world scenes, not the framing screens.
 const showChapterTitle = computed(() => Boolean(chapter.value.title) && scene.value.type !== 'screen')
 
-// Dev-only: a skip button on every scene that jumps to the next one. Hidden on
-// the terminal scene (nothing to skip to).
+// Dev-only: add `?dev` to the URL to reveal a skip button on every scene. It's
+// hidden on the terminal scene (nothing to skip to).
+const DEV = new URLSearchParams(window.location.search).has('dev')
 const isTerminal = computed(
   () =>
     chapterIndex.value === STORY.length - 1 &&
     sceneIndex.value === chapter.value.scenes.length - 1,
 )
-const showSkip = computed(() => DEV_SKIP && !isTerminal.value)
+const showSkip = computed(() => DEV && !isTerminal.value)
 
 // Resolve the current scene to a component + its props.
 const sceneComponent = computed<Component>(() => {

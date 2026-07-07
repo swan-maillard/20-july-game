@@ -1,7 +1,7 @@
 /* Google fonts first (CSS requires @import rules before everything else).
    Japanese-flavoured set: Shippori Mincho (display serif), Zen Kaku Gothic New
    (body), M PLUS 1 Code (mono / the order code). */
-@import url('https://fonts.googleapis.com/css2?family=M+PLUS+1+Code:wght@500;700&family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=M+PLUS+1+Code:wght@500;700&family=Shippori+Mincho:wght@500;700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap');
 @import 'tailwindcss';
 
 /* ---------------------------------------------------------------------------
@@ -18,6 +18,7 @@
   --font-sans: 'Zen Kaku Gothic New', system-ui, sans-serif;
   --font-serif: 'Shippori Mincho', serif;
   --font-mono: 'M PLUS 1 Code', monospace;
+  --font-hand: 'Caveat', cursive;
 
   --color-canvas: #f5f2ec; /* page / stage background */
   --color-paper: #fbf8f2; /* cards, bubbles */

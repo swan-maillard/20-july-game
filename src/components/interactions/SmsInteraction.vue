@@ -1,21 +1,37 @@
 <script setup lang="ts">
-import { nextTick, onMounted, ref } from 'vue'
-import { SMS } from '../../data'
-import InteractionShell from './InteractionShell.vue';
+import { computed, nextTick, onMounted, ref } from 'vue'
+import InteractionShell from './InteractionShell.vue'
 
-/* The opening SMS conversation, modelled as an interaction. The post office
- * asks the player to confirm an order code; every guess is rejected (with a
- * special line for the obvious one). After `failsBeforeGiveUp` attempts the
- * scene emits `done` and Marie takes over in the next scene. */
+// Post-office SMS copy + code rules.
+const SMS = {
+  sender: 'Posten',
+  intro: [
+    'Hei! A parcel addressed to you has arrived at the post office.',
+    'To release it, please confirm your 4-digit order code below.',
+  ],
+  codeLength: 4,
+  decoyCodes: ['2007', '0720', '1995', '0607', '0000', '1234'],
+  decoyReply: 'That code doesn\'t match this order. Did you really think it would be that easy?? Try again.',
+  wrongReply: 'That code doesn’t match this order. Please try again.',
+  successReply: 'Order confirmed - your parcel is ready for pickup. See you soon!',
+  code: '0249',
+  failsBeforeGiveUp: 2,
+}
+
+/* The SMS from the post office. Used twice:
+ *  - opening (no props): typing bubbles; the player doesn't know the code, so
+ *    hitting the real one by chance shows a wink then carries on as a miss;
+ *    after `failsBeforeGiveUp` misses the scene ends (linear).
+ *  - final (onSuccess/onFail set): direct messages; a correct code confirms the
+ *    order (onSuccess); two misses jump back to the riddle (onFail). */
 const props = defineProps<{
-  /** Final mode: the correct code. When set, a matching guess confirms the order. */
-  answer?: string
-  /** Scene to jump to on success (correct code). */
   onSuccess?: string
-  /** Scene to jump to after the allowed failures (e.g. back to the riddle). */
   onFail?: string
 }>()
 const emit = defineEmits<{ done: [target?: string]; skip: [target?: string] }>()
+
+// Final mode = the send-code SMS: instant messages, and a correct code wins.
+const isFinal = computed(() => Boolean(props.onSuccess || props.onFail))
 
 interface Msg {
   from: 'them' | 'me'
@@ -26,9 +42,11 @@ const messages = ref<Msg[]>([])
 const typing = ref(false)
 const showInput = ref(false)
 const busy = ref(false) // a reply is in flight
-const finished = ref(false) // out of attempts, handing off to the story
+const finished = ref(false) // out of attempts, handing off
 const code = ref('')
 const fails = ref(0)
+const lucky = ref(false) // opening mode: cracked the code by chance
+const focused = ref(false) // whether the code input has focus
 
 const inputEl = ref<HTMLInputElement | null>(null)
 const scrollEl = ref<HTMLElement | null>(null)
@@ -40,8 +58,15 @@ async function scrollToBottom() {
   if (scrollEl.value) scrollEl.value.scrollTop = scrollEl.value.scrollHeight
 }
 
-/** Show the "typing…" bubble, then drop in an incoming message. */
+// Drop in an incoming message — with a typing bubble in opening mode, instantly
+// in final mode.
 async function receive(text: string) {
+  if (isFinal.value) {
+    messages.value.push({ from: 'them', text })
+    await scrollToBottom()
+    await sleep(160)
+    return
+  }
   typing.value = true
   await scrollToBottom()
   await sleep(750)
@@ -50,18 +75,13 @@ async function receive(text: string) {
   await scrollToBottom()
 }
 
-function focusInput() {
-  nextTick(() => inputEl.value?.focus())
-}
-
 onMounted(async () => {
-  await sleep(500)
+  await sleep(isFinal.value ? 150 : 500)
   for (const m of SMS.intro) {
     await receive(m)
-    await sleep(350)
+    await sleep(isFinal.value ? 120 : 350)
   }
   showInput.value = true
-  focusInput()
 })
 
 /** Keep only digits, capped at the code length. */
@@ -70,25 +90,31 @@ function onInput(e: Event) {
 }
 
 async function submit() {
-  if (busy.value || finished.value || code.value.length < SMS.codeLength) return
+  if (busy.value || finished.value || lucky.value || code.value.length < SMS.codeLength) return
 
   const guess = code.value
   messages.value.push({ from: 'me', text: guess })
   code.value = ''
   busy.value = true
   await scrollToBottom()
-  await sleep(300)
+  await sleep(isFinal.value ? 150 : 300)
 
-  // Final mode: a correct code confirms the order and jumps to onSuccess.
-  if (props.answer && guess === props.answer) {
-    await receive(SMS.successReply)
-    finished.value = true
-    await sleep(1300)
-    emit('done', props.onSuccess)
+  if (guess === SMS.code) {
+    if (isFinal.value) {
+      // the real thing: confirm the order and move on
+      await receive(SMS.successReply)
+      finished.value = true
+      await sleep(1300)
+      emit('done', props.onSuccess)
+    } else {
+      // opening SMS: cracked it by luck — show the wink, then pretend it's wrong
+      busy.value = false
+      lucky.value = true
+    }
     return
   }
 
-  const reply = guess === SMS.decoyCode ? SMS.decoyReply : SMS.wrongReply
+  const reply = SMS.decoyCodes.includes(guess) ? SMS.decoyReply : SMS.wrongReply
   await receive(reply)
 
   fails.value += 1
@@ -97,11 +123,14 @@ async function submit() {
   if (fails.value >= SMS.failsBeforeGiveUp) {
     finished.value = true
     await sleep(1300)
-    // Final mode -> onFail (e.g. back to the riddle); opening mode -> linear.
     emit('done', props.onFail)
-  } else {
-    focusInput()
   }
+}
+
+// Opening mode: dismiss the "you found it" page and carry on as if it were wrong.
+function dismissLucky() {
+  finished.value = true
+   emit('done', props.onFail)
 }
 
 // Dev skip override: jump to the success outcome (final mode), else linear.
@@ -158,7 +187,6 @@ defineExpose({ skip })
       </p>
       <div class="flex items-center gap-3">
         <div class="relative flex-1">
-          <!-- transparent input drives the visible cells below -->
           <input
             ref="inputEl"
             :value="code"
@@ -171,13 +199,15 @@ defineExpose({ skip })
             class="absolute inset-0 h-full w-full cursor-text opacity-0"
             @input="onInput"
             @keyup.enter="submit"
+            @focus="focused = true"
+            @blur="focused = false"
           />
           <div class="pointer-events-none flex justify-center gap-2.5">
             <div
               v-for="i in SMS.codeLength"
               :key="i"
               class="flex h-12 w-11 items-center justify-center border-b-2 font-mono text-[22px] text-ink transition-colors"
-              :class="code.length === i - 1 && !finished ? 'border-vermilion' : 'border-paper-edge'"
+              :class="code.length === i - 1 && !finished && focused ? 'border-vermilion' : 'border-paper-edge'"
             >
               {{ code[i - 1] ?? '' }}
             </div>
@@ -192,5 +222,23 @@ defineExpose({ skip })
         </button>
       </div>
     </footer>
+
+    <!-- opening mode: cracked the code by chance -->
+    <div
+      v-if="lucky"
+      class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-canvas px-8 text-center"
+    >
+      <span class="font-sans text-[11px] uppercase tracking-[4px] text-ink-soft">くそ、運がいいな お前</span>
+      <h3 class="font-serif text-[23px] font-semibold text-ink">No way you found the code!!</h3>
+      <p class="max-w-[280px] text-[14px] leading-relaxed text-ink-soft">
+        You actually cracked it. But for the sake of the game let’s pretend you didn’t.
+      </p>
+      <button
+        class="mt-1 cursor-pointer rounded-md bg-vermilion px-6 py-2.5 font-sans text-[14px] font-bold text-white transition active:opacity-80"
+        @click="dismissLucky"
+      >
+        Fine, I didn’t
+      </button>
+    </div>
   </InteractionShell>
 </template>

@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { Canvas, painters } from 'headbreaker'
-import { MAP } from '../../data'
 import mapUrl from '../../assets/map.jpg'
 import InteractionShell from './InteractionShell.vue'
+
+// Puzzle config. Set `answer` to the real place name (case-insensitive).
+const MAP = {
+  answer: 'Trolltunga', // TODO: set the real place name
+  pieces: { horizontal: 4, vertical: 4 },
+}
 
 /* A jigsaw of the map (headbreaker / Konva). Reassemble it to read the route,
  * then type the name of the cabin's place to finish. */
