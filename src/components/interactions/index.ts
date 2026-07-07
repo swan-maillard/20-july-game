@@ -1,6 +1,7 @@
 import type { Component } from 'vue'
 import SmsInteraction from './SmsInteraction.vue'
 import CoffeeInteraction from './CoffeeInteraction.vue'
+import MapInteraction from './MapInteraction.vue'
 import PlaceholderInteraction from './PlaceholderInteraction.vue'
 
 /* ============================================================================
@@ -13,5 +14,6 @@ import PlaceholderInteraction from './PlaceholderInteraction.vue'
 export const INTERACTIONS: Record<string, Component> = {
   sms: SmsInteraction,
   coffee: CoffeeInteraction,
+  map: MapInteraction,
   placeholder: PlaceholderInteraction,
 }

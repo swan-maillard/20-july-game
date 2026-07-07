@@ -26,24 +26,15 @@ export const CHARACTERS: Record<string, Character> = {
       sleepy: MarieSleepy,
       surprised: MarieSurprised,
       proud: MarieProud,
+      drinking: ''
     },
   },
-  pigeon: {
-    name: 'pigeon',
+  swan: {
+    name: 'Swan',
     side: 'right',
     accent: '#2f6b9a',
     portraits: {
-      neutral: '',
-      happy: '',
-    },
-  },
-  dog: {
-    name: 'Dog',
-    side: 'right',
-    accent: '#8f2f9a',
-    portraits: {
-      neutral: '',
-      happy: '',
+      disgusted: ''
     },
   },
 }

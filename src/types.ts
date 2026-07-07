@@ -75,8 +75,6 @@ export interface InteractiveScene extends SceneBase {
 /** A centred, full-bleed message: title, ending, or an interstitial. */
 export interface ScreenScene extends SceneBase {
   type: 'screen'
-  /** Visual flavour. 'title' adds the hinomaru mark. */
-  variant?: 'title' | 'end' | 'plain'
   kicker?: string
   title: string
   body?: string

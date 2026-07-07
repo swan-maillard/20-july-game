@@ -25,7 +25,6 @@ export const STORY: Chapter[] = [
     scenes: [
       {
         type: 'screen',
-        variant: 'title',
         kicker: '7月20日',
         title: 'July, 20th',
         body: 'The ordinary adventure of an extraordinary woman.',
@@ -35,10 +34,9 @@ export const STORY: Chapter[] = [
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'An order code. Right. I definitely had one of those.', image: PhonePosten },
-          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'I even wrote it on a post-it so I wouldn’t forget it. Very responsible of me.', image: PhonePosten },
-          { kind: 'say', who: 'marie', mood: 'surprised', text: '…and then I left the post-it at the cabin. Last weekend. Of course I did.', image: PhonePosten },
-          { kind: 'say', who: 'dog', mood: 'happy', text: 'Woof!' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'I completely forgot about this package!! What was the code again?', image: PhonePosten },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Ah I remember now, I wrote it on a post-it.', image: PhonePosten },
+          { kind: 'say', who: 'marie', mood: 'surprised', text: '...and then I forgot the post-it on a cabin last time...', image: PhonePosten },
         ],
       },
     ],
@@ -48,9 +46,18 @@ export const STORY: Chapter[] = [
     title: 'コーヒータイム',
     scenes: [
       {
+        type: 'screen',
+        kicker: 'コーヒータイム',
+        title: 'Chapter 1',
+        body: 'Coffee Time',
+        action: 'Let\'s go',
+      },
+      {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'But now it is 7am, I need to do some coffee.' },
+          { kind: 'say', who: 'marie', mood: 'neutral', text: 'So annoying, I have to go back to the cabin...' },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'But first, I need my daily cup of coffee!' },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Let\'s try this new coffee recipe I got.' },
         ],
       },
       // The brew. Success jumps past the retry dialog; failure jumps to it.
@@ -58,7 +65,7 @@ export const STORY: Chapter[] = [
         type: 'interactive',
         key: 'coffee',
         id: 'brew',
-        props: { title: 'Make the coffee', onSuccess: 'coffee-good', onFail: 'coffee-bad' },
+        props: { title: 'Make yourself a cheeky cup of coffee', onSuccess: 'coffee-good', onFail: 'coffee-bad' },
       },
       // Failure: complain, then `goto` loops back to the brew to try again.
       {
@@ -66,7 +73,10 @@ export const STORY: Chapter[] = [
         id: 'coffee-bad',
         goto: 'brew',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'surprised', text: 'This coffee is really horrible. I need to do it again.' },
+          { kind: 'say', who: 'marie', mood: 'surprised', text: 'Ew this coffee is really bad. Usually I would drink it, but I need good coffee right now.' },
+          { kind: 'say', who: 'swan', mood: 'disgusted', text: 'C\'est pas bon du tout ! Mais pourquoi t\'as fait ça ?' },
+          { kind: 'say', who: 'marie', mood: 'neutral', text: 'Ok ok I\'ll do it again.' },
+
         ],
       },
       // Success: last scene of the chapter, so it flows on to the next one.
@@ -74,7 +84,9 @@ export const STORY: Chapter[] = [
         type: 'dialog',
         id: 'coffee-good',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'Now THAT is a good cup. Brain: officially online.' },
+          { kind: 'say', who: 'marie', mood: 'drinking', text: 'SLUUURP' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'Now THAT is a good coffee! I am one satisfied woman.' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'So, what was the ' },
         ],
       },
     ],
@@ -82,26 +94,37 @@ export const STORY: Chapter[] = [
   // ── The route ────────────────────────────────────────────────────────────
   {
     id: 'route',
-    title: '航海闘争',
+    title: '道迷い',
     scenes: [
       {
+        type: 'screen',
+        kicker: '道迷い',
+        title: 'Chapter 2',
+        body: 'Navigation struggles',
+        action: 'Let\'s go',
+      },
+      {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'Right — coffee’s in, brain’s on. Let’s get to that cabin.' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: '…wait. Which way was it again?' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'Let\'s go to the cabin!' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'This is a great opportunity to make the most of this beautiful weather!' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: '...wait. What cabin was it again?' },
+          { kind: 'say', who: 'swan', mood: 'idea', text: 'Remember, we used a map to get to the cabin, I think I still have it in my bag.' },
+          { kind: 'say', who: 'marie', mood: 'surprised', text: 'Look at this map, you made such a mess of it!! We\'ll spend hours figuring the path now...' },
         ],
       },
-      // Route puzzle (placeholder for now): a map with several lines — trace the
-      // right one to the cabin.
+      // Route puzzle: reassemble the map jigsaw, then name the cabin's place.
       {
         type: 'interactive',
-        key: 'placeholder',
-        props: { title: 'Which line leads to the cabin? Trace the right route on the map.' },
+        key: 'map',
+        props: { title: 'Put some order on the maps to find your way.' },
       },
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'That one. Up past the ridge. I remember now.' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'Yes it was this cabin, I remember now! Let\'s get ready.' },
+          { kind: 'say', who: 'swan', mood: 'tired', text: 'I wanted to chill at home.' },
+          { kind: 'say', who: 'marie', mood: 'neutral', text: 'No.' },
         ],
       },
     ],
@@ -112,11 +135,17 @@ export const STORY: Chapter[] = [
     title: '登山セッション',
     scenes: [
       {
+        type: 'screen',
+        kicker: '登山セッション',
+        title: 'Chapter 3',
+        body: 'Climbing session',
+        action: 'Let\'s go',
+      },
+      {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'surprised', text: 'A boulder. Right across the trail. Of course.' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Okay — I used to climb. Read the holds, pick a line, commit.' },
-          { kind: 'say', who: 'dog', mood: 'happy', text: 'Woof!' },
+          { kind: 'say', who: 'marie', mood: 'surprised', text: 'A boulder has fallen on the trail! It blocks the whole path.' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have did the Brattkorturs, it should be easy!' },
         ],
       },
       // Boulder game (placeholder for now): show 3 coloured routes, 10s to memorise
@@ -141,6 +170,14 @@ export const STORY: Chapter[] = [
     title: 'ついに',
     scenes: [
       {
+        type: 'screen',
+        kicker: 'ついに',
+        title: 'Chapter 4',
+        body: 'Finally',
+        action: 'Let\'s go',
+      },
+      {
+        
         type: 'dialog',
         lines: [
           { kind: 'say', who: 'marie', mood: 'neutral', text: 'There it is. The cabin. We actually made it.' },
@@ -177,7 +214,6 @@ export const STORY: Chapter[] = [
       {
         type: 'screen',
         id: 'end',
-        variant: 'end',
         kicker: 'おめでとう',
         title: 'Congratulations!',
         body: 'You can now go to the post office and get your package! Happy birthday <3',
