@@ -145,7 +145,7 @@ export const STORY: Chapter[] = [
         type: 'dialog',
         lines: [
           { kind: 'say', who: 'marie', mood: 'surprised', text: 'A boulder has fallen on the trail! It blocks the whole path.' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have did the Brattkorturs, it should be easy!' },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have done the Brattkorturs, it should be easy!' },
         ],
       },
       // Boulder game (placeholder for now): show 3 coloured routes, 10s to memorise

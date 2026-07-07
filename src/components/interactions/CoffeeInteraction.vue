@@ -23,19 +23,39 @@ const brewing = ref(false)
 function frac(v: number, cfg: { min: number; max: number }) {
   return cfg.max === cfg.min ? 0 : (v - cfg.min) / (cfg.max - cfg.min)
 }
+function lerp(a: number, b: number, t: number) {
+  return Math.round(a + (b - a) * t)
+}
 
 // Visual bindings.
 const waterFrac = computed(() => frac(values.water, COFFEE.water))
 const heatFrac = computed(() => frac(values.heat, COFFEE.heat))
 const durFrac = computed(() => frac(values.duration, COFFEE.duration))
-const waterY = computed(() => 152 - waterFrac.value * 54) // boiler interior 98..152
-const flameScale = computed(() => 0.3 + heatFrac.value) // flame grows with heat
+const waterY = computed(() => 196 - waterFrac.value * 70) // boiler interior ~126..196
 const heatAngle = computed(() => -120 + heatFrac.value * 240) // knob sweep
+// Heat is shown as red: the stove + the pot's base go from cool grey to hot red.
+const heatColor = computed(
+  () => `rgb(${lerp(150, 226, heatFrac.value)}, ${lerp(153, 59, heatFrac.value)}, ${lerp(154, 30, heatFrac.value)})`,
+)
+const BREW_MS = 2200
+const brewT = ref(0) // 0 → 1 across the brew animation
+
+// Timer readout + ring: while brewing they count down to zero.
+const shownFrac = computed(() => (brewing.value ? durFrac.value * (1 - brewT.value) : durFrac.value))
+const shownSeconds = computed(() =>
+  brewing.value ? Math.round(values.duration * (1 - brewT.value)) : values.duration,
+)
 const durLabel = computed(
-  () => `${Math.floor(values.duration / 60)}:${String(values.duration % 60).padStart(2, '0')}`,
+  () => `${Math.floor(shownSeconds.value / 60)}:${String(shownSeconds.value % 60).padStart(2, '0')}`,
 )
 const RING = 2 * Math.PI * 26
-const ringOffset = computed(() => RING * (1 - durFrac.value))
+const ringOffset = computed(() => RING * (1 - shownFrac.value))
+
+// Reused for both the visible shape and its clip path.
+const boilerPath =
+  'M76,122 L58,196 Q65,203 72,196 Q79,203 86,196 Q93,203 100,196 Q107,203 114,196 Q121,203 128,196 Q135,203 142,196 L124,122 Z'
+const collectorPath =
+  'M62,46 L60,56 L73,110 Q80,116 87,110 Q94,116 100,110 Q107,116 114,110 Q120,116 127,110 L140,56 L138,46 Q100,36 62,46 Z'
 
 function turnHeat() {
   values.heat = values.heat >= COFFEE.heat.max ? COFFEE.heat.min : values.heat + COFFEE.heat.step
@@ -52,8 +72,15 @@ function brew() {
     values.heat === COFFEE.answer.heat &&
     values.water === COFFEE.answer.water &&
     values.duration === COFFEE.answer.duration
-  // brief brew animation, then resolve
-  window.setTimeout(() => emit('done', ok ? props.onSuccess : props.onFail), 1500)
+  // run the timer down to zero over the brew, then resolve
+  let start = 0
+  const tick = (now: number) => {
+    if (!start) start = now
+    brewT.value = Math.min(1, (now - start) / BREW_MS)
+    if (brewT.value < 1) requestAnimationFrame(tick)
+    else emit('done', ok ? props.onSuccess : props.onFail)
+  }
+  requestAnimationFrame(tick)
 }
 
 // Dev skip override: jump straight to the success outcome.
@@ -98,74 +125,100 @@ defineExpose({ skip })
         </div>
 
         <!-- moka pot -->
-        <svg viewBox="0 0 140 210" class="h-[192px] w-auto" role="img" aria-label="moka pot">
+        <svg viewBox="0 0 200 232" class="h-[200px] w-auto" role="img" aria-label="moka pot">
           <defs>
-            <clipPath id="mokaBoiler"><polygon points="38,152 102,152 96,98 44,98" /></clipPath>
-            <clipPath id="mokaCollector"><polygon points="46,92 94,92 82,54 58,54" /></clipPath>
+            <clipPath id="mokaBoiler"><path :d="boilerPath" /></clipPath>
+            <clipPath id="mokaCollector"><path :d="collectorPath" /></clipPath>
+            <linearGradient id="mokaHeat" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" :stop-color="heatColor" :stop-opacity="0.15 + heatFrac * 0.7" />
+              <stop offset="100%" :stop-color="heatColor" stop-opacity="0" />
+            </linearGradient>
           </defs>
 
-          <!-- burner + flame (in the gap beneath the pot) -->
-          <ellipse cx="70" cy="184" rx="44" ry="5" fill="#3a3a38" />
-          <g :transform="`translate(70 180) scale(1 ${flameScale}) translate(-70 -180)`">
-            <g class="flame">
-              <path d="M56,180 C48,168 50,156 56,148 C62,156 64,168 56,180 Z" fill="#ef8f2e" />
-              <path d="M84,180 C76,168 78,156 84,148 C90,156 92,168 84,180 Z" fill="#ef8f2e" />
-              <path d="M70,180 C59,164 61,146 70,136 C79,146 81,164 70,180 Z" fill="#f0902f" />
-              <path d="M70,178 C63,166 65,152 70,144 C75,152 77,166 70,178 Z" fill="#ffd257" />
-            </g>
+          <!-- steam -->
+          <g
+            class="moka-steam"
+            fill="none"
+            stroke="#2a2a28"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            opacity="0.6"
+          >
+            <path d="M44,48 q-6,-7 0,-14 q6,-7 0,-14" />
+            <path d="M53,46 q-6,-7 0,-14 q6,-7 0,-14" />
           </g>
 
           <!-- handle -->
           <path
-            d="M46,100 C20,104 20,128 46,126"
-            fill="none"
+            d="M137,64 L178,74 Q184,76 182,83 L163,118 L151,118 L154,108 L169,84 Q171,80 166,79 L135,72 Z"
+            fill="#fff"
             stroke="#2a2a28"
-            stroke-width="8"
-            stroke-linecap="round"
+            stroke-width="3"
+            stroke-linejoin="round"
           />
 
-          <!-- boiler (holds water) -->
-          <polygon points="38,152 102,152 96,98 44,98" fill="#d7dbde" stroke="#8f959a" stroke-width="2" />
+          <!-- spout -->
+          <path d="M61,52 L40,58 L61,66 Z" fill="#fff" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
+
+          <!-- lower chamber (boiler): water + heat glow -->
+          <path :d="boilerPath" fill="#fff" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
           <g clip-path="url(#mokaBoiler)">
-            <rect x="36" :y="waterY" width="68" :height="152 - waterY" fill="#9cc6d6" />
-            <rect x="36" :y="waterY" width="68" height="3" fill="#bfe0ec" />
+            <rect x="52" :y="waterY" width="96" :height="198 - waterY" fill="#a9cfdd" />
+            <rect x="52" :y="waterY" width="96" height="3" fill="#c7e3ee" />
+            <rect x="52" y="120" width="96" height="80" fill="url(#mokaHeat)" />
           </g>
-          <polygon
-            points="38,152 102,152 96,98 44,98"
-            fill="none"
-            stroke="#8f959a"
-            stroke-width="2"
+          <path :d="boilerPath" fill="none" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
+
+          <!-- waist band -->
+          <path
+            d="M77,111 L123,111 L121,122 L79,122 Z"
+            fill="#fff"
+            stroke="#2a2a28"
+            stroke-width="3"
+            stroke-linejoin="round"
           />
 
-          <!-- screw band -->
-          <rect x="43" y="90" width="54" height="9" rx="2" fill="#b7bcc0" stroke="#8f959a" stroke-width="1.5" />
-
-          <!-- collector (coffee) -->
-          <polygon points="46,92 94,92 82,54 58,54" fill="#dfe3e6" stroke="#8f959a" stroke-width="2" />
+          <!-- upper chamber (collector): coffee -->
+          <path :d="collectorPath" fill="#fff" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
           <g clip-path="url(#mokaCollector)">
             <rect
-              x="46"
-              y="54"
-              width="48"
-              height="40"
+              x="58"
+              y="46"
+              width="84"
+              height="66"
               fill="#4a2f1c"
               class="coffee"
               :class="{ 'coffee--on': brewing }"
             />
           </g>
-          <polygon points="46,92 94,92 82,54 58,54" fill="none" stroke="#8f959a" stroke-width="2" />
+          <path :d="collectorPath" fill="none" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
 
-          <!-- spout -->
-          <polygon points="93,60 106,56 93,70" fill="#c9ced1" stroke="#8f959a" stroke-width="1.5" />
           <!-- lid + knob -->
-          <ellipse cx="70" cy="54" rx="13" ry="3.5" fill="#c9ced1" stroke="#8f959a" stroke-width="1.5" />
-          <circle cx="70" cy="47" r="4.5" fill="#2a2a28" />
+          <path
+            d="M90,33 C90,24 93,21 100,21 C107,21 110,24 110,33 Z"
+            fill="#fff"
+            stroke="#2a2a28"
+            stroke-width="3"
+            stroke-linejoin="round"
+          />
 
-          <!-- steam while brewing -->
-          <g v-if="brewing" fill="none" stroke="#c9ced1" stroke-width="2.5" stroke-linecap="round">
-            <path class="steam" d="M66,40 q-4,-6 0,-12 q4,-6 0,-12" />
-            <path class="steam steam--2" d="M76,40 q4,-6 0,-12 q-4,-6 0,-12" />
+          <!-- facet dashes -->
+          <g stroke="#2a2a28" stroke-width="1.5" stroke-dasharray="3 5" fill="none" opacity="0.75">
+            <path d="M86,50 L82,108" />
+            <path d="M100,48 L100,108" />
+            <path d="M114,50 L118,108" />
+            <path d="M82,126 L66,192" />
+            <path d="M100,124 L100,192" />
+            <path d="M118,126 L134,192" />
           </g>
+
+          <!-- pressure valve -->
+          <circle cx="100" cy="152" r="6" fill="#fff" stroke="#2a2a28" stroke-width="2.5" />
+          <circle cx="100" cy="152" r="2" fill="#2a2a28" />
+
+          <!-- stove (reddens with heat) -->
+          <ellipse cx="100" cy="215" rx="62" ry="9" :fill="heatColor" stroke="#2a2a28" stroke-width="2.5" />
+          <ellipse cx="100" cy="215" rx="44" ry="5.5" fill="none" stroke="#2a2a28" stroke-width="1.5" opacity="0.45" />
         </svg>
 
         <!-- heat knob -->
@@ -178,9 +231,9 @@ defineExpose({ skip })
           >
             <svg viewBox="0 0 60 60" class="h-[56px] w-[56px]">
               <circle cx="30" cy="30" r="27" fill="#e7e1d5" stroke="#8f959a" stroke-width="2" />
-              <circle cx="30" cy="30" r="20" fill="#d7dbde" />
+              <circle cx="30" cy="30" r="20" :fill="heatColor" opacity="0.9" />
               <g :transform="`rotate(${heatAngle} 30 30)`">
-                <rect x="28.5" y="9" width="3" height="14" rx="1.5" fill="#d2552f" />
+                <rect x="28.5" y="9" width="3" height="14" rx="1.5" fill="#2a2a28" />
               </g>
             </svg>
           </button>
@@ -261,37 +314,22 @@ defineExpose({ skip })
   transform: scaleY(1);
 }
 
-/* Flame flicker + steam. */
-.flame {
-  animation: coffee-flicker 0.45s ease-in-out infinite alternate;
+/* Gentle steam drift. */
+.moka-steam {
+  animation: moka-steam 2.4s ease-in-out infinite;
 }
-@keyframes coffee-flicker {
-  from {
-    opacity: 0.78;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.steam {
-  animation: coffee-steam 2.2s ease-in-out infinite;
-  opacity: 0;
-}
-.steam--2 {
-  animation-delay: 1.1s;
-}
-@keyframes coffee-steam {
-  20% {
-    opacity: 0.6;
-  }
+@keyframes moka-steam {
+  0%,
   100% {
-    opacity: 0;
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.7;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flame,
-  .steam,
+  .moka-steam,
   .coffee {
     animation: none;
     transition: none;
