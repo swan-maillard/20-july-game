@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { Canvas, painters } from 'headbreaker'
-import mapUrl from '../../assets/map.jpg'
+import mapUrl from '../../assets/map.png'
 import InteractionShell from './InteractionShell.vue'
 
 // Puzzle config. Set `answer` to the real place name (case-insensitive).
 const MAP = {
-  answer: 'Hamar', // TODO: set the real place name
-  pieces: { horizontal: 4, vertical: 4 },
+  answer: 'STAVANGER',
+  pieces: { horizontal: 3, vertical: 3 },
 }
 
 /* A jigsaw of the map (headbreaker / Konva). Reassemble it to read the route,
- * then type the name of the cabin's place to finish. */
-defineProps<{ title?: string }>()
-const emit = defineEmits<{ done: [] }>()
+ * then type the name of the cabin's place. Correct -> onSuccess; wrong ->
+ * onFail (a dialog that loops back here). */
+const props = defineProps<{ title?: string; onSuccess?: string; onFail?: string }>()
+const emit = defineEmits<{ done: [target?: string]; skip: [target?: string] }>()
 
 const puzzleEl = ref<HTMLDivElement | null>(null)
 const ready = ref(false)
 const solved = ref(false)
 const place = ref('')
-const wrong = ref(false)
 
 let canvas: Canvas | null = null
 
@@ -35,10 +35,10 @@ onMounted(() => {
     // ratio, scaled to fit inside the stage (clamping whichever side binds)
     // with a bit of room left over to shuffle. Rectangular pieces keep the
     // map undistorted.
-    const IMG_W = 1428
-    const IMG_H = 2000
-    const width = el.clientWidth || 360
-    const height = el.clientHeight || 320
+    const IMG_W = 734
+    const IMG_H = 740
+    const width = el.clientWidth
+    const height = el.clientHeight
     const scale = Math.min(width / IMG_W, height / IMG_H)
     const pieceSize = {
       x: Math.floor((IMG_W * scale) / MAP.pieces.horizontal),
@@ -88,13 +88,15 @@ onBeforeUnmount(() => {
 })
 
 function submit() {
-  if (place.value.trim().toLowerCase() === MAP.answer.trim().toLowerCase()) {
-    emit('done')
-  } else {
-    wrong.value = true
-    setTimeout(() => (wrong.value = false), 600)
-  }
+  const correct = place.value.trim().toLowerCase() === MAP.answer.trim().toLowerCase()
+  emit('done', correct ? props.onSuccess : props.onFail)
 }
+
+// Dev skip -> jump straight to the success outcome.
+function skip() {
+  emit('skip', props.onSuccess)
+}
+defineExpose({ skip })
 </script>
 
 <template>
@@ -130,8 +132,7 @@ function submit() {
           v-model="place"
           type="text"
           placeholder="Name of the place…"
-          class="min-w-0 flex-1 rounded-md border bg-white px-3 py-2.5 font-sans text-[15px] text-ink outline-none transition-colors"
-          :class="wrong ? 'border-vermilion' : 'border-paper-edge focus:border-ink-soft'"
+          class="min-w-0 flex-1 rounded-md border border-paper-edge bg-white px-3 py-2.5 font-sans text-[15px] text-ink outline-none transition-colors focus:border-ink-soft"
           @keyup.enter="submit"
         />
         <button

@@ -9,6 +9,7 @@ import CupGood from '../assets/bg/cup-good.png'
 import Backpack from '../assets/bg/backpack.png'
 import SunMountain from '../assets/bg/sun-mountain.png'
 import MapImg from '../assets/bg/map.png'
+import MapX from '../assets/bg/map-x.png'
 import MapMessy from '../assets/bg/map-messy.png'
 import MapPin from '../assets/bg/map-pin.png'
 import Bed from '../assets/bg/bed.png'
@@ -95,6 +96,8 @@ export const STORY: Chapter[] = [
         id: 'coffee-bad',
         goto: 'brew',
         lines: [
+          { kind: 'say', who: 'marie', mood: 'drinkingCoffee', text: 'SLUUURP', image: Cup },
+          { kind: 'say', who: 'swan', mood: 'drinkingCoffee', text: 'SLUUURP', image: Cup },
           { kind: 'say', who: 'marie', mood: 'badCoffee', text: 'Ew this coffee is really bad. Usually I would drink it, but I need good coffee right now.', image: CupBad },
           { kind: 'say', who: 'swan', mood: 'badCoffee', text: 'C\'est pas bon du tout ! Mais pourquoi t\'as fait ça ?', image: CupBad },
           { kind: 'say', who: 'swan', mood: 'thinking', text: 'You shouldn\'t wing the values, it is a very precise science!', image: CupBad },
@@ -107,8 +110,9 @@ export const STORY: Chapter[] = [
         id: 'coffee-good',
         lines: [
           { kind: 'say', who: 'marie', mood: 'drinkingCoffee', text: 'SLUUURP', image: Cup },
+          { kind: 'say', who: 'swan', mood: 'drinkingCoffee', text: 'SLUUURP', image: Cup },
           { kind: 'say', who: 'marie', mood: 'proud', text: 'Now THAT is a good coffee! I am one satisfied woman.', image: CupGood },
-          { kind: 'say', who: 'swan', mood: 'drinkingCoffee', text: 'And I am one satisfied man.', image: CupGood },
+          { kind: 'say', who: 'swan', mood: 'goodCoffee', text: 'And I am one satisfied man.', image: CupGood },
         ],
       },
     ],
@@ -135,14 +139,29 @@ export const STORY: Chapter[] = [
           { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Look at this map, you made such a mess of it!! We\'ll spend hours figuring the path now...', image: MapMessy },
         ],
       },
-      // Route puzzle: reassemble the map jigsaw, then name the cabin's place.
+      // Route puzzle: reassemble the map, then name the place. A wrong name jumps
+      // to the fail dialog, which loops back to a fresh map.
       {
         type: 'interactive',
         key: 'map',
-        props: { title: 'Put some order on the map to find your way.' },
+        id: 'map-puzzle',
+        props: { title: 'Put some order on the map to find your way.', onSuccess: 'route-good', onFail: 'route-bad' },
       },
+      // Wrong place: rethink, then `goto` loops back to the map.
       {
         type: 'dialog',
+        id: 'route-bad',
+        goto: 'map-puzzle',
+        lines: [
+          { kind: 'say', who: 'swan', mood: 'scared', text: 'I am 100% confident I never went there with you. Who did you go there with??', image: MapX },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text:'...', image: MapX },
+          { kind: 'say', who: 'swan', mood: 'sleepy', text:'Just kidding! Anyway let\'s find the real cabin.', image: MapX },
+        ],
+      },
+      // Right place: last scene of the chapter, flows on to the next.
+      {
+        type: 'dialog',
+        id: 'route-good',
         lines: [
           { kind: 'say', who: 'marie', mood: 'happy', text: 'Yes it was this cabin, I remember now! Let\'s get ready.', image: MapPin },
           { kind: 'say', who: 'swan', mood: 'sleepy', text: 'I wanted to chill at home.', image: Bed },

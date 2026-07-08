@@ -8,6 +8,15 @@ import MarieBadCoffee from '../assets/marie/bad-coffee.png'
 import MarieGoodCoffee from '../assets/marie/good-coffee.png'
 import MarieSad from '../assets/marie/sad.png'
 
+import SwanHappy from '../assets/swan/happy.png'
+import SwanThinking from '../assets/swan/thinking.png'
+import SwanSleepy from '../assets/swan/sleepy.png'
+import SwanScared from '../assets/swan/scared.png'
+import SwanDrinkingCoffee from '../assets/swan/drinking-coffee.png'
+import SwanBadCoffee from '../assets/swan/bad-coffee.png'
+import SwanGoodCoffee from '../assets/swan/good-coffee.png'
+import SwanSad from '../assets/swan/sad.png'
+
 /**
  * The cast. Reference a character by key from story lines
  * (`{ kind: 'say', who: 'marie', ... }`). Each mood maps to a cut-out PNG;
@@ -37,13 +46,14 @@ export const CHARACTERS: Record<string, Character> = {
     side: 'right',
     accent: 'rgb(211, 178, 0)',
     portraits: {
-      thinking: '',
-      badCoffee: '',
-      drinkingCoffee: '',
-      sleepy: '',
-      scared: '',
-      happy: '',
-      sad: ''
+      thinking: SwanThinking,
+      badCoffee: SwanBadCoffee,
+      goodCoffee: SwanGoodCoffee,
+      drinkingCoffee: SwanDrinkingCoffee,
+      sleepy: SwanSleepy,
+      scared: SwanScared,
+      happy: SwanHappy,
+      sad: SwanSad
     },
   },
 }

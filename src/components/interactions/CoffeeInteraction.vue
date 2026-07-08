@@ -190,8 +190,8 @@ defineExpose({ skip })
           <!-- lower chamber (boiler): water + heat glow -->
           <path :d="boilerPath" fill="#fff" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
           <g clip-path="url(#mokaBoiler)">
-            <rect x="52" :y="waterY" width="96" :height="198 - waterY" fill="#a9cfdd" />
-            <rect x="52" :y="waterY" width="96" height="3" fill="#c7e3ee" />
+            <rect x="52" :y="waterY" width="96" :height="198 - waterY" fill="#a9cfdd" 
+              class="water" :class="{'water--off': brewing}" />
             <rect x="52" y="120" width="96" height="80" fill="url(#mokaHeat)" />
           </g>
           <path :d="boilerPath" fill="none" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
@@ -210,12 +210,12 @@ defineExpose({ skip })
           <g clip-path="url(#mokaCollector)">
             <rect
               x="58"
-              y="46"
+              :y="112 - 66*waterFrac"
               width="84"
-              height="66"
+              :height="66*waterFrac"
               fill="#4a2f1c"
               class="coffee"
-              :class="{ 'coffee--on': brewing }"
+              :class="{'coffee--on': brewing}"
             />
           </g>
           <path :d="collectorPath" fill="none" stroke="#2a2a28" stroke-width="3" stroke-linejoin="round" />
@@ -316,7 +316,7 @@ defineExpose({ skip })
       <!-- brew -->
       <button
         class="w-full cursor-pointer rounded-md bg-vermilion px-6 py-3.5 font-sans text-[15px] font-bold tracking-wide text-white transition active:opacity-80 disabled:opacity-60"
-        :disabled="brewing"
+        :disabled="brewing || (waterFrac == 0 || heatFrac == 0 || durFrac == 0)"
         @click="brew"
       >
         {{ brewing ? 'Brewing…' : 'Brew' }}
@@ -344,6 +344,17 @@ defineExpose({ skip })
 }
 .coffee--on {
   transform: scaleY(1);
+}
+
+.water {
+  transform: scaleY(1);
+  transform-origin: bottom;
+  transform-box: fill-box;
+  transition: transform 1.3s ease;
+}
+
+.water--off {
+  transform: scaleY(0);
 }
 
 /* Gentle steam drift. */
