@@ -1,5 +1,24 @@
 import type { Chapter } from '../types'
-import PhonePosten from '../assets/phone-posten.svg'
+import PhonePosten from '../assets/bg/phone-posten.png'
+import Postit from '../assets/bg/postit.png'
+import Cabin from '../assets/bg/cabin.png'
+import Cup from '../assets/bg/cup.png'
+import Moka from '../assets/bg/moka.png'
+import CupBad from '../assets/bg/cup-bad.png'
+import CupGood from '../assets/bg/cup-good.png'
+import Backpack from '../assets/bg/backpack.png'
+import SunMountain from '../assets/bg/sun-mountain.png'
+import MapImg from '../assets/bg/map.png'
+import MapMessy from '../assets/bg/map-messy.png'
+import MapPin from '../assets/bg/map-pin.png'
+import Bed from '../assets/bg/bed.png'
+import Boulder from '../assets/bg/boulder.png'
+import Rope from '../assets/bg/rope.png'
+import Slip from '../assets/bg/slip.png'
+import Summit from '../assets/bg/summit.png'
+import Door from '../assets/bg/door.png'
+import PostitX from '../assets/bg/postit-x.png'
+import PostitMusic from '../assets/bg/postit-music.png'
 
 /* ============================================================================
    THE STORY.
@@ -10,13 +29,14 @@ import PhonePosten from '../assets/phone-posten.svg'
 
    Scene shapes:
      { type: 'dialog', lines: [ … ] }
-       line: { kind: 'say', who: <character id>, mood?: <mood>, text: '…' }
+       line: { kind: 'say', who: <character id>, mood?: <mood>, text: '…', image? }
              { kind: 'note', text: '…' }                    // narrator card
      { type: 'interactive', key: '<registry key>', props?: { … } }   // sms, games…
      { type: 'screen', variant?, kicker?, title, body?, action? }     // title/end/…
 
    `key` for interactive scenes maps to a component in
-   src/components/interactions/index.ts.
+   src/components/interactions/index.ts. `image` puts a centred illustration
+   behind the bubble (see src/assets/bg).
    ========================================================================== */
 export const STORY: Chapter[] = [
   {
@@ -35,8 +55,9 @@ export const STORY: Chapter[] = [
         type: 'dialog',
         lines: [
           { kind: 'say', who: 'marie', mood: 'thinking', text: 'I completely forgot about this package!! What was the code again?', image: PhonePosten },
-          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Ah I remember now, I wrote it on a post-it.', image: PhonePosten },
-          { kind: 'say', who: 'marie', mood: 'surprised', text: '...and then I forgot the post-it on a cabin last time...', image: PhonePosten },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Ah I remember now, I wrote it on a post-it.', image: Postit },
+          { kind: 'say', who: 'marie', mood: 'sad', text: '...and then I forgot the post-it on a cabin last time...', image: Cabin },
+          { kind: 'say', who: 'swan', mood: 'sad', text: 'Tipisk!!', image: Cabin },
         ],
       },
     ],
@@ -55,9 +76,10 @@ export const STORY: Chapter[] = [
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'So annoying, I have to go back to the cabin...' },
-          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'But first, I need my daily cup of coffee!' },
-          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Let\'s try this new coffee recipe I got.' },
+          { kind: 'say', who: 'marie', mood: 'sad', text: 'So annoying, I have to go back to the cabin...', image: Cabin },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'But first, I need my daily cup of coffee!', image: Cup },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Let\'s try this new coffee recipe I got.', image: Moka },
+          { kind: 'say', who: 'swan', mood: 'thinking', text: 'The recipe does not look very helpful...', image: Moka },
         ],
       },
       // The brew. Success jumps past the retry dialog; failure jumps to it.
@@ -73,10 +95,10 @@ export const STORY: Chapter[] = [
         id: 'coffee-bad',
         goto: 'brew',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'surprised', text: 'Ew this coffee is really bad. Usually I would drink it, but I need good coffee right now.' },
-          { kind: 'say', who: 'swan', mood: 'disgusted', text: 'C\'est pas bon du tout ! Mais pourquoi t\'as fait ça ?' },
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'Ok ok I\'ll do it again.' },
-
+          { kind: 'say', who: 'marie', mood: 'badCoffee', text: 'Ew this coffee is really bad. Usually I would drink it, but I need good coffee right now.', image: CupBad },
+          { kind: 'say', who: 'swan', mood: 'badCoffee', text: 'C\'est pas bon du tout ! Mais pourquoi t\'as fait ça ?', image: CupBad },
+          { kind: 'say', who: 'swan', mood: 'thinking', text: 'You shouldn\'t wing the values, it is a very precise science!', image: CupBad },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Ok ok I\'ll do it again.', image: CupBad },
         ],
       },
       // Success: last scene of the chapter, so it flows on to the next one.
@@ -84,9 +106,9 @@ export const STORY: Chapter[] = [
         type: 'dialog',
         id: 'coffee-good',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'drinking', text: 'SLUUURP' },
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'Now THAT is a good coffee! I am one satisfied woman.' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'So, what was the ' },
+          { kind: 'say', who: 'marie', mood: 'drinkingCoffee', text: 'SLUUURP', image: Cup },
+          { kind: 'say', who: 'marie', mood: 'proud', text: 'Now THAT is a good coffee! I am one satisfied woman.', image: CupGood },
+          { kind: 'say', who: 'swan', mood: 'drinkingCoffee', text: 'And I am one satisfied man.', image: CupGood },
         ],
       },
     ],
@@ -106,25 +128,25 @@ export const STORY: Chapter[] = [
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'Let\'s go to the cabin!' },
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'This is a great opportunity to make the most of this beautiful weather!' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: '...wait. What cabin was it again?' },
-          { kind: 'say', who: 'swan', mood: 'idea', text: 'Remember, we used a map to get to the cabin, I think I still have it in my bag.' },
-          { kind: 'say', who: 'marie', mood: 'surprised', text: 'Look at this map, you made such a mess of it!! We\'ll spend hours figuring the path now...' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'Let\'s go to the cabin!', image: Backpack },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'This is a great opportunity to make the most of this beautiful weather!', image: SunMountain },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: '...wait. What cabin was it again?', image: MapImg },
+          { kind: 'say', who: 'swan', mood: 'thinking', text: 'Remember, we used a map to get to the cabin, I think I still have it in my bag.', image: MapImg },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Look at this map, you made such a mess of it!! We\'ll spend hours figuring the path now...', image: MapMessy },
         ],
       },
       // Route puzzle: reassemble the map jigsaw, then name the cabin's place.
       {
         type: 'interactive',
         key: 'map',
-        props: { title: 'Put some order on the maps to find your way.' },
+        props: { title: 'Put some order on the map to find your way.' },
       },
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'Yes it was this cabin, I remember now! Let\'s get ready.' },
-          { kind: 'say', who: 'swan', mood: 'tired', text: 'I wanted to chill at home.' },
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'No.' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'Yes it was this cabin, I remember now! Let\'s get ready.', image: MapPin },
+          { kind: 'say', who: 'swan', mood: 'sleepy', text: 'I wanted to chill at home.', image: Bed },
+          { kind: 'say', who: 'marie', mood: 'sleepy', text: 'No.', image: MapPin },
         ],
       },
     ],
@@ -144,8 +166,10 @@ export const STORY: Chapter[] = [
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'surprised', text: 'A boulder has fallen on the trail! It blocks the whole path.' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have done the Brattkorturs, it should be easy!' },
+          { kind: 'say', who: 'marie', mood: 'sad', text: 'A boulder has fallen on the trail! It blocks the whole path.', image: Boulder },
+          { kind: 'say', who: 'swan', mood: 'scared', text: 'OH NO! Then, we need to go back home and chill.', image: Boulder },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have done the Brattkorturs, it should be easy!', image: Rope },
+          
         ],
       },
       // Boulder game: memorise 3 coloured routes, they grey out, then climb the
@@ -162,8 +186,9 @@ export const STORY: Chapter[] = [
         id: 'boulder-bad',
         goto: 'boulder-climb',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'surprised', text: ' Aaah I slipped!! I need to read the route and not go by instinct only!' },
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'I\'ll try again.' },
+          { kind: 'say', who: 'marie', mood: 'sad', text: ' Aaah I slipped!!', image: Slip },
+          { kind: 'say', who: 'swan', mood: 'thinking', text: 'We need to read the route and not go by instinct only!', image: Boulder },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s try again.', image: Rope },
         ],
       },
       // Sent it: last scene of the chapter, flows on to the next.
@@ -171,8 +196,8 @@ export const STORY: Chapter[] = [
         type: 'dialog',
         id: 'boulder-good',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'proud', text: 'Made it!! First try. ...Mostly.' },
-          { kind: 'say', who: 'swan', mood: 'happy', text: 'I can see the cabin!!' },
+          { kind: 'say', who: 'marie', mood: 'proud', text: 'Made it!! First try. ...Mostly.', image: Summit },
+          { kind: 'say', who: 'swan', mood: 'happy', text: 'I can see the cabin!!', image: Cabin },
         ],
       },
     ],
@@ -191,14 +216,13 @@ export const STORY: Chapter[] = [
         action: 'Let\'s go',
       },
       {
-        
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'We finally made it!' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'The post-it is in here somewhere... But where did I put left it?' },
-          { kind: 'say', who: 'swan', mood: 'thinking', text: 'Look we also forgot this post-it last time when doing our Disney karaoke.' },
-          { kind: 'say', who: 'swan', mood: 'sad', text: 'But I don\'t find the post-it for the code...' },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Show me this post-it, maybe I\ll suddently remember.' },
+          { kind: 'say', who: 'marie', mood: 'happy', text: 'We finally made it!', image: Door },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'The post-it is in here somewhere... But where did I put left it?', image: Postit },
+          { kind: 'say', who: 'swan', mood: 'thinking', text: 'Look we also forgot this post-it last time when doing our Disney karaoke.', image: PostitMusic },
+          { kind: 'say', who: 'swan', mood: 'sad', text: 'But I don\'t find the post-it for the code...', image: Postit },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Show me this post-it, maybe I\ll suddently remember.', image: PostitMusic },
         ],
       },
       // The riddle note. "Found the post-it" opens the SMS again.
@@ -210,8 +234,8 @@ export const STORY: Chapter[] = [
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'happy', text: 'Yay I remembered where was the post-it!' },
-          { kind: 'say', who: 'marie', mood: 'neutral', text: 'I can now see if the code is correct.' },
+          { kind: 'say', who: 'marie', mood: 'proud', text: 'Yay I remembered where was the post-it!', image: Postit },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'I can now see if the code is correct.', image: PhonePosten },
         ],
       },
       // Re-open the SMS in "final" mode (direct messages, correct code known).
@@ -226,7 +250,7 @@ export const STORY: Chapter[] = [
         type: 'dialog',
         id: 'failed-code',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'sad', text: 'It might be that I haven\'t found the correct post-it actually... Let\'s think again.' },
+          { kind: 'say', who: 'marie', mood: 'sad', text: 'It might be that I haven\'t found the correct post-it actually... Let\'s think again.', image: PostitX },
         ],
         goto: 'riddle'
       },

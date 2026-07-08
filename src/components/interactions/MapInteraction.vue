@@ -6,7 +6,7 @@ import InteractionShell from './InteractionShell.vue'
 
 // Puzzle config. Set `answer` to the real place name (case-insensitive).
 const MAP = {
-  answer: 'Trolltunga', // TODO: set the real place name
+  answer: 'Hamar', // TODO: set the real place name
   pieces: { horizontal: 4, vertical: 4 },
 }
 

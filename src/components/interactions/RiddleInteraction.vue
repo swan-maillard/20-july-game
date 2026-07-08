@@ -8,10 +8,13 @@ const emit = defineEmits<{ done: [target?: string]; skip: [target?: string] }>()
 // The riddle written on the note. PLACEHOLDER — write your own.
 const RIDDLE = {
   lines: [
-    'Where the kettle sings',
-    'and the mugs all sleep,',
-    'lift the one you love the most —',
-    'a little note to keep.',
+    "- Don't let them, don't let them see",
+    "- But voice inside sings a different song",
+    "- I'll fool myself, she'll walk in",
+    "- There's gems in the land, so hold up your",
+    "- a far off place",
+    "- Can friends do this?",
+    "- It's she who holds her tongue who gets a"
   ],
   action: 'Found the post-it!',
 }
@@ -36,7 +39,7 @@ defineExpose({ skip })
         <span
           class="absolute -top-3 left-1/2 h-6 w-20 -translate-x-1/2 -rotate-2 rounded-[1px] bg-white/45 shadow-sm"
         />
-        <p class="whitespace-pre-line text-center font-hand text-[27px] leading-[1.3] text-[#3a2f1c]">
+        <p class="whitespace-pre-line font-hand text-[1.2rem] leading-[1.3] text-[#3a2f1c]">
           {{ RIDDLE.lines.join('\n') }}
         </p>
       </div>

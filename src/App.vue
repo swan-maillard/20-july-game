@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { computed, ref, type Component } from 'vue'
+import { computed, ref, watch, type Component } from 'vue'
 import { STORY, CHARACTERS } from './data'
 import { INTERACTIONS } from './components/interactions'
 import { useReducedMotion } from './composables/useReducedMotion'
 import { usePreloadImages } from './composables/usePreloadImages'
+import { useBackgroundMusic } from './composables/useBackgroundMusic'
+import musicUrl from './assets/music.mp3'
 import DialogScene from './components/scenes/DialogScene.vue'
 import ScreenScene from './components/scenes/ScreenScene.vue'
 import PlaceholderInteraction from './components/interactions/PlaceholderInteraction.vue'
 
 const reduced = useReducedMotion()
+
+// Dev mode (?dev): reveals the skip button and syncs the current scene to the
+// URL, so a refresh stays on the same scene.
+const DEV = new URLSearchParams(window.location.search).has('dev')
+
+// Looping background music (starts on the first interaction — autoplay is blocked).
+useBackgroundMusic(musicUrl)
 
 // Warm the cache for every portrait + per-line prop image at startup so they
 // show instantly later on.
@@ -27,6 +36,30 @@ const chapter = computed(() => STORY[chapterIndex.value])
 const scene = computed(() => chapter.value.scenes[sceneIndex.value])
 const positionKey = computed(() => `${chapterIndex.value}-${sceneIndex.value}`)
 
+// Dev: restore the scene from `?chapter=&scene=` on load, then keep the URL in
+// sync as the scene changes (scene id when it has one, else its index).
+if (DEV) {
+  const params = new URLSearchParams(window.location.search)
+  const ci = STORY.findIndex((c) => c.id === params.get('chapter'))
+  if (ci !== -1) {
+    chapterIndex.value = ci
+    const scenes = STORY[ci].scenes
+    const sceneParam = params.get('scene') ?? ''
+    let si = scenes.findIndex((s) => s.id === sceneParam)
+    if (si === -1 && /^\d+$/.test(sceneParam)) si = Number(sceneParam)
+    if (si >= 0 && si < scenes.length) sceneIndex.value = si
+  }
+  watch(
+    [chapterIndex, sceneIndex],
+    ([c, s]) => {
+      const ch = STORY[c]
+      const sceneId = ch.scenes[s]?.id ?? String(s)
+      history.replaceState(null, '', `${location.pathname}?dev&chapter=${ch.id}&scene=${sceneId}`)
+    },
+    { immediate: true },
+  )
+}
+
 // Current scene instance — lets the dev skip call an optional skip() override
 // the scene exposes (interactions use it to jump straight to their success).
 const sceneRef = ref<{ skip?: () => void } | null>(null)
@@ -34,9 +67,7 @@ const sceneRef = ref<{ skip?: () => void } | null>(null)
 // Chapter label is for in-world scenes, not the framing screens.
 const showChapterTitle = computed(() => Boolean(chapter.value.title) && scene.value.type !== 'screen')
 
-// Dev-only: add `?dev` to the URL to reveal a skip button on every scene. It's
-// hidden on the terminal scene (nothing to skip to).
-const DEV = new URLSearchParams(window.location.search).has('dev')
+// The skip button is hidden on the terminal scene (nothing to skip to).
 const isTerminal = computed(
   () =>
     chapterIndex.value === STORY.length - 1 &&

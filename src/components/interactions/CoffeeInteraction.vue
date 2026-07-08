@@ -8,13 +8,19 @@ import InteractionShell from './InteractionShell.vue'
 // right numbers.
 const COFFEE = {
   /** Lines of the recipe shown to the player. */
-  recipe: ['Heat each tray to three.', 'Two hundred fifty in.', 'Wait thirty, savour slowly.'],
+  recipe: [
+    'First, turn on the heat',
+    'First, add a cup of water',
+    'First, set up the timer at a suitable duration',
+    'Then, add a second cup of water',
+    'Then, start the timer'
+  ],
   /** The settings the player must dial in to brew it right. */
-  answer: { heat: 3, water: 250, duration: 30 },
+  answer: { heat: 1, water: 24, duration: 35 },
   /** Control ranges (min, max, step) and display unit. */
-  heat: { min: 1, max: 5, step: 1, unit: '' },
-  water: { min: 150, max: 400, step: 10, unit: 'ml' },
-  duration: { min: 10, max: 60, step: 5, unit: 's' },
+  heat: { min: 0, max: 5, step: 1, unit: '' },
+  water: { min: 0, max: 30, step: 1, unit: 'cl' },
+  duration: { min: 0, max: 60, step: 5, unit: 's' },
 }
 
 /* Set up the moka pot — water (slider), heat (stove knob), time (timer) — to
@@ -60,7 +66,7 @@ const shownSeconds = computed(() =>
   brewing.value ? Math.round(values.duration * (1 - brewT.value)) : values.duration,
 )
 const durLabel = computed(
-  () => `${Math.floor(shownSeconds.value / 60)}:${String(shownSeconds.value % 60).padStart(2, '0')}`,
+  () => `${String(shownSeconds.value)}s`,
 )
 const RING = 2 * Math.PI * 26
 const ringOffset = computed(() => RING * (1 - shownFrac.value))
@@ -70,6 +76,13 @@ const boilerPath =
   'M76,122 L58,196 Q65,203 72,196 Q79,203 86,196 Q93,203 100,196 Q107,203 114,196 Q121,203 128,196 Q135,203 142,196 L124,122 Z'
 const collectorPath =
   'M62,46 L60,56 L73,110 Q80,116 87,110 Q94,116 100,110 Q107,116 114,110 Q120,116 127,110 L140,56 L138,46 Q100,36 62,46 Z'
+
+function highlight(text: string) {
+  return text.replace(
+    /\b(heat|water|timer)\w*/gi,
+    (match) => `<strong>${match}</strong>`
+  )
+}
 
 function turnHeat() {
   values.heat = values.heat >= COFFEE.heat.max ? COFFEE.heat.min : values.heat + COFFEE.heat.step
@@ -116,7 +129,7 @@ defineExpose({ skip })
       <div class="mb-3 rounded-xl border border-paper-edge bg-canvas/70 p-2.5">
         <div class="mb-1 font-sans text-[10px] uppercase tracking-[2px] text-ink-soft">Recipe</div>
         <p v-for="(l, i) in COFFEE.recipe" :key="i" class="font-mono text-[12px] leading-snug">
-          {{ l }}
+          <strong>{{ i + 1 }}</strong> – <span v-html="highlight(l)"></span>
         </p>
       </div>
 
@@ -257,7 +270,8 @@ defineExpose({ skip })
       </div>
 
       <!-- timer -->
-      <div class="my-3 flex items-center justify-center gap-4">
+       <div class="flex flex-col items-center mb-3">
+        <div class="flex items-center justify-center gap-4">
         <button
           class="flex h-9 w-9 items-center justify-center rounded-full border border-paper-edge bg-canvas text-[20px] font-bold leading-none text-ink transition active:opacity-70"
           :disabled="brewing"
@@ -294,6 +308,10 @@ defineExpose({ skip })
           +
         </button>
       </div>
+      <span class="text-[9px] uppercase tracking-[1px] text-ink-soft">timer</span>
+       </div>
+      
+
 
       <!-- brew -->
       <button

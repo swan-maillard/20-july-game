@@ -1,10 +1,12 @@
 import type { Character } from '../types'
-import MarieNeutral from '../assets/marie-neutral.png'
-import MarieHappy from '../assets/marie-happy.png'
-import MarieThinking from '../assets/marie-thinking.png'
-import MarieSleepy from '../assets/marie-sleepy.png'
-import MarieSurprised from '../assets/marie-surprised.png'
-import MarieProud from '../assets/marie-proud.png'
+import MarieHappy from '../assets/marie/happy.png'
+import MarieThinking from '../assets/marie/thinking.png'
+import MarieSleepy from '../assets/marie/sleepy.png'
+import MarieProud from '../assets/marie/proud.png'
+import MarieDrinkingCoffee from '../assets/marie/drinking-coffee.png'
+import MarieBadCoffee from '../assets/marie/bad-coffee.png'
+import MarieGoodCoffee from '../assets/marie/good-coffee.png'
+import MarieSad from '../assets/marie/sad.png'
 
 /**
  * The cast. Reference a character by key from story lines
@@ -18,23 +20,30 @@ export const CHARACTERS: Record<string, Character> = {
   marie: {
     name: 'Marie',
     side: 'left',
-    accent: '#d2552f',
+    accent: '#326de3',
     portraits: {
-      neutral: MarieNeutral,
       happy: MarieHappy,
       thinking: MarieThinking,
       sleepy: MarieSleepy,
-      surprised: MarieSurprised,
       proud: MarieProud,
-      drinking: ''
+      drinkingCoffee: MarieDrinkingCoffee,
+      badCoffee: MarieBadCoffee,
+      goodCoffee: MarieGoodCoffee,
+      sad: MarieSad,
     },
   },
   swan: {
     name: 'Swan',
     side: 'right',
-    accent: '#2f6b9a',
+    accent: 'rgb(211, 178, 0)',
     portraits: {
-      disgusted: ''
+      thinking: '',
+      badCoffee: '',
+      drinkingCoffee: '',
+      sleepy: '',
+      scared: '',
+      happy: '',
+      sad: ''
     },
   },
 }

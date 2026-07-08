@@ -218,7 +218,7 @@ defineExpose({ skip })
           :disabled="code.length < SMS.codeLength || busy || finished"
           @click="submit"
         >
-          Valider
+          Send
         </button>
       </div>
     </footer>

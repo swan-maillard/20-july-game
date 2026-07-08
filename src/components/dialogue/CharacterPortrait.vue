@@ -33,7 +33,6 @@ defineProps<{
       class="flex h-[170px] w-[108px] flex-col items-center justify-center gap-1.5 rounded-[16px_16px_10px_10px] border-2 border-dashed border-ink/30 bg-ink/[0.04] p-2 text-center text-ink/60"
     >
       <span class="text-[11px] font-extrabold uppercase tracking-[0.6px]">{{ mood }}</span>
-      <span class="text-[10px] leading-tight opacity-80">add cut-out<br />photo here</span>
     </div>
   </div>
 </template>

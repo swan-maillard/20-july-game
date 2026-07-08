@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import boulderUrl from '../../assets/boulder.png'
+import boulderUrl from '../../assets/bg/boulder.png'
 import InteractionShell from './InteractionShell.vue'
 
 // Routes, timing and difficulty for the boulder game.

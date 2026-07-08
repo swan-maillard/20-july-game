@@ -57,7 +57,7 @@ const image = computed(() => line.value?.image ?? '')
         :key="image"
         :src="image"
         alt=""
-        class="pointer-events-none absolute left-1/2 top-[40%] max-h-[50vh] w-auto max-w-[66%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,.18)]"
+        class="pointer-events-none absolute left-1/2 top-[40%] max-h-[30%] w-auto max-w-[50%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,.18)]"
       />
     </Transition>
 
