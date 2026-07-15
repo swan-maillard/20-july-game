@@ -48,8 +48,8 @@ export const STORY: Chapter[] = [
         type: 'screen',
         kicker: '7月20日',
         title: 'July, 20th',
-        body: 'The ordinary adventure of an extraordinary woman.',
-        action: 'Let\s go',
+        body: 'The journey of a cheeky lady.',
+        action: 'Let\'s go',
       },
       { type: 'interactive', key: 'sms' },
       {
@@ -58,7 +58,7 @@ export const STORY: Chapter[] = [
           { kind: 'say', who: 'marie', mood: 'thinking', text: 'I completely forgot about this package!! What was the code again?', image: PhonePosten },
           { kind: 'say', who: 'marie', mood: 'sleepy', text: 'Ah I remember now, I wrote it on a post-it.', image: Postit },
           { kind: 'say', who: 'marie', mood: 'sad', text: '...and then I forgot the post-it on a cabin last time...', image: Cabin },
-          { kind: 'say', who: 'swan', mood: 'sad', text: 'Tipisk!!', image: Cabin },
+          { kind: 'say', who: 'swan', mood: 'sad', text: 'Typisk!!', image: Cabin },
         ],
       },
     ],
@@ -153,7 +153,7 @@ export const STORY: Chapter[] = [
         id: 'route-bad',
         goto: 'map-puzzle',
         lines: [
-          { kind: 'say', who: 'swan', mood: 'scared', text: 'I am 100% confident I never went there with you. Who did you go there with??', image: MapX },
+          { kind: 'say', who: 'swan', mood: 'scared', text: 'I am 100% confident I never went there with you. Which man did you go there with??', image: MapX },
           { kind: 'say', who: 'marie', mood: 'sleepy', text:'...', image: MapX },
           { kind: 'say', who: 'swan', mood: 'sleepy', text:'Just kidding! Anyway let\'s find the real cabin.', image: MapX },
         ],
@@ -164,7 +164,7 @@ export const STORY: Chapter[] = [
         id: 'route-good',
         lines: [
           { kind: 'say', who: 'marie', mood: 'happy', text: 'Yes it was this cabin, I remember now! Let\'s get ready.', image: MapPin },
-          { kind: 'say', who: 'swan', mood: 'sleepy', text: 'I wanted to chill at home.', image: Bed },
+          { kind: 'say', who: 'swan', mood: 'sleepy', text: 'Oh no, I wanted to chill at home.', image: Bed },
           { kind: 'say', who: 'marie', mood: 'sleepy', text: 'No.', image: MapPin },
         ],
       },
@@ -187,7 +187,7 @@ export const STORY: Chapter[] = [
         lines: [
           { kind: 'say', who: 'marie', mood: 'sad', text: 'A boulder has fallen on the trail! It blocks the whole path.', image: Boulder },
           { kind: 'say', who: 'swan', mood: 'scared', text: 'OH NO! Then, we need to go back home and chill.', image: Boulder },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panick. I have done the Brattkorturs, it should be easy!', image: Rope },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Let\'s not panic. I have done the Brattkortkurs, it should be easy!', image: Rope },
           
         ],
       },
@@ -225,23 +225,23 @@ export const STORY: Chapter[] = [
   // ── The cabin: the riddle + sending the code ─────────────────────────────
   {
     id: 'cabin',
-    title: '気づき',
+    title: '捜索',
     scenes: [
       {
         type: 'screen',
-        kicker: '気づき',
+        kicker: '捜索',
         title: 'Chapter 4',
-        body: 'The realisation',
+        body: 'The search',
         action: 'Let\'s go',
       },
       {
         type: 'dialog',
         lines: [
           { kind: 'say', who: 'marie', mood: 'happy', text: 'We finally made it!', image: Door },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'The post-it is in here somewhere... But where did I put left it?', image: Postit },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'The post-it is in here somewhere... But where did I leave it?', image: Postit },
           { kind: 'say', who: 'swan', mood: 'thinking', text: 'Look we also forgot this post-it last time when doing our Disney karaoke.', image: PostitMusic },
           { kind: 'say', who: 'swan', mood: 'sad', text: 'But I don\'t find the post-it for the code...', image: Postit },
-          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Show me this post-it, maybe I\ll suddently remember.', image: PostitMusic },
+          { kind: 'say', who: 'marie', mood: 'thinking', text: 'Show me this post-it, maybe I\'ll suddenly remember.', image: PostitMusic },
         ],
       },
       // The riddle note. "Found the post-it" opens the SMS again.
@@ -253,7 +253,7 @@ export const STORY: Chapter[] = [
       {
         type: 'dialog',
         lines: [
-          { kind: 'say', who: 'marie', mood: 'proud', text: 'Yay I remembered where was the post-it!', image: Postit },
+          { kind: 'say', who: 'marie', mood: 'proud', text: 'Yay I remembered where the post-it was!', image: Postit },
           { kind: 'say', who: 'marie', mood: 'thinking', text: 'I can now see if the code is correct.', image: PhonePosten },
         ],
       },
